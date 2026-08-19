@@ -18,3 +18,5 @@ export type CartItemType = ProductType & {
 };
 
 export type CartItemsType = CartItemType[];
+
+
