@@ -5,6 +5,10 @@ import { ProductType } from '../types'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
+import { useDispatch } from 'react-redux'
+import { addToChart } from '../store/cartSlice'
+import toast from 'react-hot-toast'
+import { AppDispatch } from '../store/store'
 
 const ProductCard = ({ product }: { product: ProductType }) => {
    const [productTypes, setProductTypes] = useState({
@@ -25,8 +29,16 @@ const ProductCard = ({ product }: { product: ProductType }) => {
     }));
   };
 
+  const dispatch = useDispatch<AppDispatch>()
+
 
   const handleAddToCart =()=>{
+    dispatch(addToChart({
+      ...product,
+       selectedSize: productTypes.size,
+      selectedColor: productTypes.color,
+    }))
+    toast.success("item added to your cart")
 
   }
   return (

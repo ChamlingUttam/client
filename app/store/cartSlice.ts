@@ -1,8 +1,8 @@
 "use client"
 import { createSlice,PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from "./store";
+// import { RootState } from "./store";
 
-type Product {
+type Product = {
     id: string | number;
   name: string;
   shortDescription: string;
@@ -14,9 +14,16 @@ type Product {
 }
 
 type cartItem = Product & {
-    quantity:number
+    quantity:number, 
+    selectedSize: string;
+    selectedColor: string;
 
 }
+
+type AddToCartPayload = Product & {
+  selectedSize: string;
+  selectedColor: string;
+};
 
 type cartState = {
     items : cartItem[]
@@ -30,9 +37,11 @@ const cartSlice = createSlice({
     name:"cart",
     initialState,
     reducers:{
-        addToChart :(state,action:PayloadAction<Product>)=>{
+        addToChart :(state,action:PayloadAction<AddToCartPayload>)=>{
             const existingItem = state.items.find((item)=>
-            item.id === action.payload.id
+            item.id === action.payload.id&&
+      item.selectedSize === action.payload.selectedSize &&
+      item.selectedColor === action.payload.selectedColor
             )
 
             if(existingItem){
@@ -40,14 +49,14 @@ const cartSlice = createSlice({
             }else{
                 state.items.push({
                     ...action.payload,
-                    quantity = 1
+                    quantity : 1
                 })
             }
             
         },
 
         removeCart:(state,action:PayloadAction<string|number>)=>{
-            state.items.filter((item)=>
+           state.items =  state.items.filter((item)=>
             item.id != action.payload
             )
         }
@@ -60,7 +69,8 @@ const cartSlice = createSlice({
 
 
 export const {
-    addToChart
+    addToChart,
+    removeCart
 } = cartSlice.actions
 
 export default cartSlice.reducer
