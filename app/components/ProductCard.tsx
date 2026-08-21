@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux'
 import { addToChart } from '../store/cartSlice'
 import toast from 'react-hot-toast'
 import { AppDispatch } from '../store/store'
+import { increment } from '../store/cartCountSlice'
 
 const ProductCard = ({ product }: { product: ProductType }) => {
    const [productTypes, setProductTypes] = useState({
@@ -38,6 +39,8 @@ const ProductCard = ({ product }: { product: ProductType }) => {
        selectedSize: productTypes.size,
       selectedColor: productTypes.color,
     }))
+
+    dispatch(increment())
     toast.success("item added to your cart")
 
   }
