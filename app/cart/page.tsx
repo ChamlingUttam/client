@@ -1,10 +1,13 @@
 "use client"
-import { ArrowRight, Trash } from 'lucide-react'
+import { ArrowRight, Cross, Trash } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useState } from 'react'
 import ShippingForm from '../components/ShippingForm'
 import PaymentForm from '../components/PaymentForm'
 import Image from 'next/image'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../store/store'
+import { removeCart } from '../store/cartSlice'
 
 
 type PaymentFormData = {
@@ -32,61 +35,61 @@ const steps = [
 
 //tempory items
 
-const cartITems = [
-     {
-    id: 1,
-    name: "Adidas CoreFit T-Shirt",
-    shortDescription:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    description:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    price: 39.9,
-    sizes: ["s", "m", "l", "xl", "xxl"],
-    colors: ["gray", "purple", "green"],
-    images: {
-      gray: "/products/1g.png",
-      purple: "/products/1p.png",
-      green: "/products/1gr.png",
-    },
-    quantity:1,
-    selectedSize:"m",
-    selectedColor:"green"
-  },
-  {
-    id: 2,
-    name: "Puma Ultra Warm Zip",
-    shortDescription:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    description:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    price: 59.9,
-    sizes: ["s", "m", "l", "xl"],
-    colors: ["gray", "green"],
-    images: { gray: "/products/2g.png", green: "/products/2gr.png" }, quantity:1,
-    selectedSize:"m",
-    selectedColor:"green"
-  },
+// const cartITems = [
+//      {
+//     id: 1,
+//     name: "Adidas CoreFit T-Shirt",
+//     shortDescription:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     description:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     price: 39.9,
+//     sizes: ["s", "m", "l", "xl", "xxl"],
+//     colors: ["gray", "purple", "green"],
+//     images: {
+//       gray: "/products/1g.png",
+//       purple: "/products/1p.png",
+//       green: "/products/1gr.png",
+//     },
+//     quantity:1,
+//     selectedSize:"m",
+//     selectedColor:"green"
+//   },
+//   {
+//     id: 2,
+//     name: "Puma Ultra Warm Zip",
+//     shortDescription:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     description:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     price: 59.9,
+//     sizes: ["s", "m", "l", "xl"],
+//     colors: ["gray", "green"],
+//     images: { gray: "/products/2g.png", green: "/products/2gr.png" }, quantity:1,
+//     selectedSize:"m",
+//     selectedColor:"green"
+//   },
   
-  {
-    id: 3,
-    name: "Nike Air Essentials Pullover",
-    shortDescription:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    description:
-      "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
-    price: 69.9,
-    sizes: ["s", "m", "l"],
-    colors: ["green", "blue", "black"],
-    images: {
-      green: "/products/3gr.png",
-      blue: "/products/3b.png",
-      black: "/products/3bl.png",
-    },
-     quantity:1,
-    selectedSize:"m",
-    selectedColor:"green"
-  }
-]
+//   {
+//     id: 3,
+//     name: "Nike Air Essentials Pullover",
+//     shortDescription:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     description:
+//       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit. Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",
+//     price: 69.9,
+//     sizes: ["s", "m", "l"],
+//     colors: ["green", "blue", "black"],
+//     images: {
+//       green: "/products/3gr.png",
+//       blue: "/products/3b.png",
+//       black: "/products/3bl.png",
+//     },
+//      quantity:1,
+//     selectedSize:"m",
+//     selectedColor:"green"
+//   }
+// ]
 const page = () => {
     const searchParams = useSearchParams()
     const router = useRouter()
@@ -97,6 +100,13 @@ const page = () => {
 
     const [paymentForm, setPaymentForm] =
   useState<PaymentFormData | null>(null);
+
+ const carts = useSelector((store: RootState) => store.cart.items)
+const dispatch = useDispatch<AppDispatch>()
+
+  const [deleteitems,setDeleteItems]= useState<number | null>(null)
+
+  
   return (
     <div className='flex flex-col gap-8 items-center justify-center mt-12'>
         <h1 className="text-2xl font-medium">Your Shopping Cart</h1>
@@ -123,7 +133,7 @@ const page = () => {
           {/** left section */}
           <div className="w-full lg:w-7/12 shadow-lg border border-gray-100 p-8 rounded-lg flex flex-col gap-8">
           {activeStep ===1 ? (
-            cartITems.map((item)=>(
+            carts.map((item)=>(
               <div className='flex justify-between' key={item.id}>
                 <div className='flex gap-8'>
                   <div className='relative w-32 h-32 overflow-hidden  bg-gray-50 rounded-lg'>
@@ -146,12 +156,14 @@ const page = () => {
                   </div>
                 </div>
                 <button className='text-red-600'>
-                  <Trash/>
+                  <Trash
+                  onClick={()=>setDeleteItems(item.id)}
+                  />
                 </button>
               </div>
             ))
           ):
-          activeStep===2?(<ShippingForm onContinue={()=>router.push("/cart?step=3,{scroll:false")} setShippingForm={setShippingForm}/>):
+          activeStep===2?(<ShippingForm onContinue={()=>router.push("/cart?step=3",{scroll:false})} setShippingForm={setShippingForm}/>):
           activeStep ===3 && shippingForm ? (<PaymentForm  setPaymentForm={setPaymentForm}
     onContinue={() => {
       // Place order here
@@ -193,6 +205,65 @@ const page = () => {
          }
             </div>
         </div>
+
+        {
+          deleteitems !==null && (
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+  <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+
+    
+    <button
+      onClick={() => setDeleteItems(null)}
+      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+    >
+      <Cross size={18} />
+    </button>
+
+    {/* Icon */}
+    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+      <Trash className="text-red-500" size={25} />
+    </div>
+
+    {/* Content */}
+    <div className="mt-4 text-center">
+      <h1 className="text-xl font-semibold text-gray-800">
+        Remove item?
+      </h1>
+
+      <p className="mt-2 text-sm leading-6 text-gray-500">
+        Are you sure you want to remove this item from your cart?
+        This action cannot be undone.
+      </p>
+    </div>
+
+    {/* Buttons */}
+    <div className="mt-7 flex gap-3">
+
+      <button
+        onClick={() => setDeleteItems(null)}
+        className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-100"
+      >
+        Cancel
+      </button>
+
+      <button
+        onClick={() => {
+          if (deleteitems !== null) {
+            dispatch(removeCart(deleteitems));
+            setDeleteItems(null);
+          }
+        }}
+        className="flex-1 rounded-lg bg-red-500 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-red-600 active:scale-95"
+      >
+        Remove
+      </button>
+
+    </div>
+
+  </div>
+</div>
+          )
+        }
         
     </div>
   )
